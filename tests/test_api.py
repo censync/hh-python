@@ -650,10 +650,23 @@ class ImageTest(ApiTestCase):
                 ErrorCode.INVALID_ARGUMENT, image.save, os.path.join(os.fsencode(directory), b"c")
             )
             # A name that cannot name a file is an invalid value, not a ValueError of open().
-            for name in ("a\0.png", "\0.png", "a\ud800.png"):
+            for name in ("a\0.png", "\0.png"):
                 path = os.path.join(directory, name)
                 error = self.assert_error(ErrorCode.INVALID_ARGUMENT, image.save, path)
                 self.assertIsNone(error.__cause__)
+            # Windows file names are UTF-16 and may hold a lone surrogate; elsewhere a file name
+            # is bytes in the file system encoding, which cannot represent one.
+            lone = os.path.join(directory, "a\ud800.png")
+            try:
+                os.fsencode(lone)
+            except UnicodeEncodeError:
+                error = self.assert_error(ErrorCode.INVALID_ARGUMENT, image.save, lone)
+                self.assertIsNone(error.__cause__)
+            else:
+                image.save(lone)
+                with open(lone, "rb") as file:
+                    self.assertEqual(image.encode_png(), file.read())
+                os.remove(lone)
             bad = os.path.join(os.fsencode(directory), b"a\0.png")
             self.assert_error(ErrorCode.INVALID_ARGUMENT, image.save, bad)
             bad_path = pathlib.Path(directory, "a\0.jpg")

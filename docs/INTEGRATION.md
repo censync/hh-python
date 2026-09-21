@@ -196,7 +196,7 @@ value is the code of the C ABI and whose `spec_name` is the spelling of the spec
 | `SecretKey(...)`, use of a closed key | `INVALID_KEY` |
 | `Fingerprint.render` | `INVALID_SIZE`, `INVALID_FRAME`, `LOW_CONTRAST`, in this order of checks |
 | `Image(...)`, `Image.encode_jpeg` | `INVALID_IMAGE`, `INVALID_QUALITY` |
-| `RenderOptions(...)`, `measure_contrast`, `encode_bmp`, `encode_jpeg`, `save` | `INVALID_ARGUMENT` for a colour outside `0..0xFFFFFF`, an alpha outside `0..255`, an unknown file extension or a file name that cannot name a file (an embedded NUL, a lone surrogate) |
+| `RenderOptions(...)`, `measure_contrast`, `encode_bmp`, `encode_jpeg`, `save` | `INVALID_ARGUMENT` for a colour outside `0..0xFFFFFF`, an alpha outside `0..255`, an unknown file extension or a file name that cannot name a file (an embedded NUL; outside Windows also a lone surrogate) |
 
 Arguments of the wrong type (a `str` where bytes are expected, a `float` size, a `bool` mode, a
 `memoryview` that was released) raise `TypeError`. Nothing else is raised apart from

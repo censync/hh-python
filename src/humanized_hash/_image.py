@@ -113,8 +113,9 @@ class Image:
         ``bytes`` or an ``os.PathLike``. The image is encoded before the file is opened.
 
         Raises :class:`HhError` with ``INVALID_ARGUMENT`` for any other extension and for a name
-        that cannot name a file (an embedded NUL, a lone surrogate), what the encoder raises,
-        and ``OSError`` when the file cannot be written.
+        that cannot name a file (an embedded NUL; outside Windows also a lone surrogate, which
+        the file system encoding cannot represent), what the encoder raises, and ``OSError``
+        when the file cannot be written.
         """
         name = os.fspath(path)
         if isinstance(name, bytes):
