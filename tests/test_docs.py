@@ -1,0 +1,87 @@
+"""The Python examples of the documentation run as they are written, and the README, which is
+also the long description on PyPI, points at files that exist."""
+
+from __future__ import annotations
+
+import os
+import re
+import unittest
+from typing import Any, Dict, List
+
+import humanized_hash
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def document(*path: str) -> str:
+    """The text of a Markdown file of the repository."""
+    name = os.path.join(ROOT, *path)
+    if not os.path.isfile(name):
+        raise unittest.SkipTest("the installed package has no documentation beside it")
+    with open(name, encoding="utf-8") as file:
+        return file.read()
+
+
+def python_blocks(*path: str) -> List[str]:
+    """The ``python`` code blocks of a Markdown file."""
+    return re.findall(r"^```python\n(.*?)^```$", document(*path), re.MULTILINE | re.DOTALL)
+
+
+class DocumentationTest(unittest.TestCase):
+    def test_the_quick_start_of_the_readme(self) -> None:
+        names: Dict[str, Any] = {"key_bytes": bytes(range(32))}
+        blocks = python_blocks("README.md")
+        self.assertEqual(2, len(blocks))
+        for block in blocks:
+            exec(compile(block, "README.md", "exec"), names)
+        self.assertEqual("TKSPVH", names["tag"])
+        self.assertTrue(names["png"].startswith(b"\x89PNG"))
+        self.assertIs(humanized_hash.Mode.KEYED, names["private"].mode)
+        self.assertTrue(names["key"].closed)
+
+    def test_the_recipes_of_the_integration_guide(self) -> None:
+        names: Dict[str, Any] = {
+            "address": "0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed",
+            "size": 64,
+            "options": humanized_hash.RenderOptions(),
+            "key_bytes": bytes(range(32)),
+        }
+        ran = 0
+        with humanized_hash.SecretKey(bytes(range(32))) as names["key"]:
+            for block in python_blocks("docs", "INTEGRATION.md"):
+                # The recipes for servers and toolkits need what the tests do not have.
+                if re.search(r"wsgiref|tkinter|QImage|hmac_from_elsewhere", block):
+                    continue
+                exec(compile(block, "INTEGRATION.md", "exec"), names)
+                ran += 1
+        self.assertEqual(4, ran)
+        self.assertEqual(names["public_png"](names["address"].lower(), 32)[:4], b"\x89PNG")
+        self.assertEqual(4, len(names["stored_check_value"]))
+        self.assertLess(names["report"].figures_x100, 400)
+
+    def test_the_readme_links_to_files_of_this_release(self) -> None:
+        # PyPI shows the README outside the repository: a relative link or image leads nowhere
+        # there, so everything is absolute and names the tag of the release.
+        text = document("README.md")
+        targets = re.findall(r"\]\(([^)\s]+)\)", text)
+        tag = "v" + humanized_hash.__version__
+        pages = f"https://github.com/censync/hh-python/blob/{tag}/"
+        images = f"https://raw.githubusercontent.com/censync/hh-python/{tag}/"
+        found = {"pages": 0, "images": 0}
+        for target in targets:
+            self.assertRegex(target, r"^https://[a-z]", "a relative link: " + target)
+            if "/censync/hh-python" not in target:
+                continue
+            kind = "images" if target.startswith(images) else "pages"
+            self.assertTrue(target.startswith((pages, images)), target)
+            path = target[len(images if kind == "images" else pages) :]
+            self.assertTrue(os.path.isfile(os.path.join(ROOT, *path.split("/"))), target)
+            found[kind] += 1
+        self.assertEqual({"pages": 4, "images": 5}, found)
+        for image in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", text):
+            self.assertTrue(image.startswith(images), image)
+        self.assertNotRegex(text, r"(?i)<img|<a\s|\]:\s")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,26 @@
+# The files in this directory are a byte-identical copy of testdata/ in hh-cpp, the
+# reference implementation. Do not edit them; run tools/update-vectors.sh instead.
+repository: https://github.com/censync/hh-cpp
+tag: v1.0.0
+commit: ae81bcc39caa68074127c402248fd198a3520a73
+c92ab92e281b086747bbcdbfb02c095fb03f4d66343644e6fda375d70b09484b  golden/evm-1-keyed-128-dark.png
+ecc8dc16ca7d46ce3f7815cbc53e07c747f6edb76ec82a95c1eaa7081f273cf9  golden/evm-1-keyed-128.png
+3e6a6d464ec2a45c37f4a1eef1fdac5c217e50afc4e156897cc7db5c053138e2  golden/evm-1-keyed-48.png
+6fdd85ee9888940742c9d0b440378ff6ccd4246fd8982a1aeb4034fcb125ebca  golden/evm-1-universal-128.png
+ee57014f2435b95b7d1e30b040b1228697d386298ed7aedd8b2133326a103250  golden/evm-1-universal-256-transparent.png
+ad3fa7741de615150cadf9aca3053ff5d9fa8ced293ed399c7c69cec9d69862a  golden/evm-1-universal-32.png
+d702b68e3250d1faa6e32b5c5d451d89098014f9c2fc48e44e4ded285c5015af  golden/evm-2-keyed-128-brackets.png
+df1334ac6c14c59f00f147a4de6a483277d2e721cd023b31a82cd114c77116e4  golden/evm-2-keyed-128-chamfered.png
+4a92ccb26c4cd5b00c19a22a202f6aa491dd95043e6403abd59ca8b5fbd89852  golden/evm-2-keyed-128-double.png
+db96096a352327ad424d4342336952b0da2a69d3cb34c64ed00748e6eb96d8c3  golden/evm-2-keyed-128-round-double.png
+223d848c18fcbe4ae3d94d108b5c2cb8c6cae347e33e4abba969ca3925305152  golden/evm-2-keyed-128-round-gaps.png
+05063f9107847c9ffbba73a689dee08e6a41a3464429ee82e6b4691ebe134f8a  golden/evm-2-keyed-128-round-thick.png
+ca6d70e6be57e5529aeb6a3f93771aa715eaaabb9eb372f204e5a65d2236036e  golden/evm-2-keyed-128-round-ticks.png
+9f0f510311664a48c33f64c4303513dcd63aff38839d2b4a7b636865c1e7dd2a  golden/evm-2-keyed-128-thick.png
+2651e517966b565165be857f8ef19d5774d3677b2cfa45f1c9a3d4cc8aa7643c  golden/evm-2-universal-128-plain.png
+24999751beaa0e3b486cf6264b5222f11cbd20e95d77af38a0140cbba132a98b  golden/evm-2-universal-128-round-plain.png
+35d532198bc1d754efd456054af486b921bdfe3b838063a39219a5cffa543f31  golden/evm-2-universal-128-round.png
+33c8fd0f116d7ffbd6fa54a9baf7e64c3b59502ec2a8b9e30802cee3d1586fb4  golden/poison-a-universal-128.png
+663bb6594e8e9a094bcc08471cb712b24c6c35236e5a1c2ab28e166d4d69cb48  golden/poison-b-universal-128.png
+e1c6e756cb820a935a6784dd143c13c9d0a619c0caa6a8ec1c7994a5fb2eb802  golden/sampler-universal-128.png
+402f11adf82b4f4cadbef127f70a45227652f226fb759f64f882f8eb5ffdfc60  vectors.tsv

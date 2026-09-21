@@ -1,0 +1,118 @@
+name: ci
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14", "pypy-3.10"]
+        include:
+          # CPython 3.9 is built for the runner images up to Ubuntu 24.04.
+          - { os: ubuntu-24.04, python: "3.9" }
+          - { os: macos-latest, python: "3.10" }
+          - { os: macos-latest, python: "3.14" }
+          - { os: windows-latest, python: "3.9" }
+          - { os: windows-latest, python: "3.14" }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Test the source tree, warnings are errors
+        run: python -W error -X dev -m unittest discover -s tests -t .
+
+  # The source distribution and the wheel build, the wheel holds the package only, and the
+  # tests of the source distribution pass against the installed wheel.
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Build
+        run: |
+          python -m pip install build
+          python -m build
+      - name: The wheel holds the package only, the source distribution the tests and the vectors
+        run: |
+          python - <<'PY'
+          import glob, tarfile, zipfile
+          (wheel,) = glob.glob("dist/*.whl")
+          names = zipfile.ZipFile(wheel).namelist()
+          assert all(n.startswith(("humanized_hash/", "humanized_hash-")) for n in names), names
+          assert "humanized_hash/py.typed" in names
+          (sdist,) = glob.glob("dist/*.tar.gz")
+          members = {n.split("/", 1)[1] for n in tarfile.open(sdist).getnames() if "/" in n}
+          for needed in ("LICENSE", "testdata/SOURCE", "testdata/vectors.tsv",
+                         "testdata/golden/sampler-universal-128.png", "tests/test_vectors.py",
+                         "tools/crosscheck.sh", "tools/edge-cases.txt", "docs/INTEGRATION.md",
+                         "CHANGELOG.md"):
+              assert needed in members, needed
+          PY
+      - name: Install the wheel into a clean environment and test it
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install dist/*.whl
+          mkdir /tmp/sdist && tar -xzf dist/*.tar.gz -C /tmp/sdist --strip-components=1
+          cd /tmp/sdist && rm -rf src
+          HH_TEST_INSTALLED=1 /tmp/clean/bin/python -W error -X dev -m unittest discover -s tests -t .
+          /tmp/clean/bin/humanized-hash 0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed \
+            --out /tmp/address.png
+          cmp /tmp/address.png testdata/golden/evm-1-universal-128.png
+
+  # testdata/ must be the vectors of the hh-cpp release that testdata/SOURCE names.
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read testdata/SOURCE
+        id: source
+        run: |
+          echo "tag=$(sed -n 's/^tag: //p' testdata/SOURCE)" >> "$GITHUB_OUTPUT"
+          echo "commit=$(sed -n 's/^commit: //p' testdata/SOURCE)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          repository: censync/hh-cpp
+          ref: ${{ steps.source.outputs.tag }}
+          path: hh-cpp
+      - name: The tag is the recorded commit
+        run: test "$(git -C hh-cpp rev-parse HEAD)" = "${{ steps.source.outputs.commit }}"
+      - name: The copy is byte-identical
+        run: |
+          diff -r -x SOURCE hh-cpp/testdata testdata
+          (cd testdata && grep -E '^[0-9a-f]{64}  ' SOURCE | sha256sum --check --quiet)
+
+  # Pseudo-random and hand-made cases beyond the vector set, against hh_cli built from the same
+  # release, on the oldest supported Python.
+  differential:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.9"
+      - name: Read testdata/SOURCE
+        id: source
+        run: |
+          echo "tag=$(sed -n 's/^tag: //p' testdata/SOURCE)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          repository: censync/hh-cpp
+          ref: ${{ steps.source.outputs.tag }}
+          path: hh-cpp
+      - name: Build hh_cli
+        run: |
+          cmake -S hh-cpp -B hh-cpp/build -DCMAKE_BUILD_TYPE=Release -DHH_BUILD_TESTS=OFF
+          cmake --build hh-cpp/build --parallel --target hh_cli
+      - name: Crosscheck
+        run: |
+          PYTHON=python tools/crosscheck.sh hh-cpp/build/examples/hh_cli 2000 1
+          PYTHON=python tools/crosscheck.sh hh-cpp/build/examples/hh_cli 2000 2

@@ -1,0 +1,166 @@
+# Hand-made cases for tools/crosscheck.sh: what no generator produces. They pin down the batch
+# format of hh_cli of hh-cpp (see the head of its examples/hh_cli.cpp): the field count, the
+# separators, the strict numbers, malformed fields, unknown names, the order of errors, text that
+# is not valid UTF-8, bytes that are not ASCII, and line endings. This file is bytes, not text;
+# .gitattributes keeps git from touching it. Every implementation carries the same copy.
+# The field count.
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff extra
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff # comment
+hex 0x00 - 64 square
+hex
+# Separators: runs of spaces and tabs, also at the ends; nothing else separates.
+	hex 0x00	-	64  square automatic   ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff 	 
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64square automatic ffffffff 255 png 92 ffffff
+# Numbers: 1 to 10 ASCII digits, no sign, nothing else.
+hex 0x00 - 064 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 0000000064 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 00000000064 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 00000000000000000064 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - +64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - -64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - -5 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - -0 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64.5 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64e0 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 0x40 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 6_4 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 1_6 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - ٦٤ square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - ６４ square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - abc square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 15 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 16 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 1024 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 1025 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 2147483647 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 2147483648 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 4294967295 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 4294967296 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 9999999999 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 10000000000 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 99999999999999999999 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - -4294967232 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - -4294967295 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff 0 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff 00255 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff 256 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff +5 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff +255 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff -0 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff -1 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff 2_5 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff 4294967296 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff -4294967041 png 92 ffffff
+hex 0x00 - 64 square plain ffffffff ff png 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 49 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 50 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 100 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 101 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 092 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg +92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg -1 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 9_2 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg abc ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 2147483648 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 4294967296 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 9999999999 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpeg 99999999999 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 49 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 50 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 100 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 101 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 092 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png +92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png -1 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 9_2 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png abc ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 2147483648 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 4294967296 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 9999999999 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 99999999999 ffffff
+# Names and colours.
+binary 00 - 64 square automatic ffffffff 255 png 92 ffffff
+HEX 0x00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 Square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 circle automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square Automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square dots ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic fffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic ffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic 0xffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic FFFFFFFF 255 png 92 FFFFFF
+hex 0x00 - 64 square automatic ffffffff 255 png 92 fffff
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 92 gggggg
+hex 0x00 - 64 square automatic ffffffff 255 PNG 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 gif 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 jpg 92 ffffff
+# The order of errors: the input, the key, the size, the frame, the contrast, the format, the quality.
+hex 0x00 - 15 square automatic ffffffff 255 gif 92 ffffff
+hex zz zz 15 square double 890af0ff 255 gif 49 ffffff
+hex 0x00 zz 15 square double 890af0ff 255 gif 49 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 15 square ticks 890af0ff 255 gif 49 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 64 square ticks 890af0ff 255 gif 49 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 64 square double 890af0ff 255 gif 49 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 64 square double ffffffff 255 gif 49 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 64 square double ffffffff 255 jpeg 49 ffffff
+hex 0x00 - 64 square double ffffffff 255 png 92 ffffff
+hex 0x00 - 64 round brackets ffffffff 255 png 92 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 17 round double 890af0ff 255 png 92 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 17 round double ffffffff 255 png 92 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 16 round thick ffffffff 255 png 92 ffffff
+# Keys.
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f00 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 0000000000000000000000000000000000000000000000000000000000000000 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 -- 64 square automatic ffffffff 255 png 92 ffffff
+# Inputs.
+hex 0x - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0X - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0X00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x0 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0xzz - 64 square automatic ffffffff 255 png 92 ffffff
+hex x00 - 64 square automatic ffffffff 255 png 92 ffffff
+hex 00x0 - 64 square automatic ffffffff 255 png 92 ffffff
+hex - - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0xé - 64 square automatic ffffffff 255 png 92 ffffff
+hex ٠٠ - 64 square automatic ffffffff 255 png 92 ffffff
+hex �� - 64 square automatic ffffffff 255 png 92 ffffff
+text 00 - 64 square automatic ffffffff 255 png 92 ffffff
+text ff - 64 square automatic ffffffff 255 png 92 ffffff
+text c0af - 64 square automatic ffffffff 255 png 92 ffffff
+text eda080 - 64 square automatic ffffffff 255 png 92 ffffff
+text edb080 - 64 square automatic ffffffff 255 png 92 ffffff
+text eda080edb080 - 64 square automatic ffffffff 255 png 92 ffffff
+text f4908080 - 64 square automatic ffffffff 255 png 92 ffffff
+text 80 - 64 square automatic ffffffff 255 png 92 ffffff
+text e282 - 64 square automatic ffffffff 255 png 92 ffffff
+text c328 - 64 square automatic ffffffff 255 png 92 ffffff
+text fffe - 64 square automatic ffffffff 255 png 92 ffffff
+text efbbbf61 - 64 square automatic ffffffff 255 png 92 ffffff
+text f0908d88 - 64 square automatic ffffffff 255 png 92 ffffff
+text zz - 64 square automatic ffffffff 255 png 92 ffffff
+text - - 64 square automatic ffffffff 255 png 92 ffffff
+text 616 - 64 square automatic ffffffff 255 png 92 ffffff
+text 0x61 - 64 square automatic ffffffff 255 png 92 ffffff
+text é - 64 square automatic ffffffff 255 png 92 ffffff
+hex 0x00 - 64 square automatic 12121280 7 jpeg 50 102030
+hex 0x00 - 64 square automatic 12121280 7 bmp 92 102030
+hex 0x00 - 64 square automatic 12121280 7 rgba 49 102030
+# Line endings: a CR before the LF is dropped, so the next two lines are one case and a skipped line.
+hex 0x00 - 64 square automatic ffffffff 255 png 92 ffffff
+
+# the last line has no line ending
+hex 0x01 - 64 square automatic ffffffff 255 png 92 ffffff

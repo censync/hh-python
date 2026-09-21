@@ -1,0 +1,7 @@
+# The source distribution carries everything needed to test it: the tests, the golden vectors of
+# hh-cpp, the tools and the documentation. The wheel holds the package only.
+include CHANGELOG.md CONTRIBUTING.md
+graft docs
+graft testdata
+recursive-include tests *.py
+recursive-include tools *.sh *.py *.txt

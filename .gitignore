@@ -1,0 +1,23 @@
+# Python build state
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments and tool caches
+.venv/
+venv/
+.tox/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editors and local tooling
+.idea/
+.vscode/
+*.swp
+.DS_Store

@@ -1,0 +1,9 @@
+# Line endings are fixed so checkouts are identical on every platform.
+* text=auto eol=lf
+
+# Golden vectors are a byte-identical copy of hh-cpp; git must never rewrite them.
+testdata/** -text
+
+# The hand-made batch cases hold bytes that are not text, and CR LF line ends on purpose.
+tools/edge-cases.txt -text
+*.png binary
