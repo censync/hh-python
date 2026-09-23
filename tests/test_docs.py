@@ -32,21 +32,47 @@ def python_blocks(*path: str) -> List[str]:
     return re.findall(r"^```python\n(.*?)^```$", document(*path), re.MULTILINE | re.DOTALL)
 
 
+def section(text: str, heading: str) -> str:
+    """The text of one ``##`` section of a Markdown document."""
+    found = re.search(r"^## " + re.escape(heading) + r"\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+    if found is None:
+        raise AssertionError("the document has no section " + heading)
+    return found.group(1)
+
+
+def blocks_of(text: str) -> List[str]:
+    """The ``python`` code blocks of a piece of Markdown."""
+    return re.findall(r"^```python\n(.*?)^```$", text, re.MULTILINE | re.DOTALL)
+
+
 class DocumentationTest(unittest.TestCase):
     def test_the_quick_start_of_the_readme(self) -> None:
         names: Dict[str, Any] = {"key_bytes": bytes(range(32))}
-        blocks = python_blocks("README.md")
-        self.assertEqual(3, len(blocks))
-        for block in blocks[:2]:
+        blocks = blocks_of(section(document("README.md"), "Quick start"))
+        self.assertEqual(2, len(blocks))
+        for block in blocks:
             exec(compile(block, "README.md", "exec"), names)
         self.assertEqual("TKSPVH", names["tag"])
         self.assertTrue(names["png"].startswith(b"\x89PNG"))
         self.assertIs(humanized_hash.Mode.KEYED, names["private"].mode)
         self.assertTrue(names["key"].closed)
 
+    def test_the_looks_of_the_readme(self) -> None:
+        names: Dict[str, Any] = {name: getattr(humanized_hash, name) for name in humanized_hash.__all__}
+        blocks = blocks_of(section(document("README.md"), "Looks"))
+        self.assertEqual(1, len(blocks))
+        exec(compile(blocks[0], "README.md", "exec"), names)
+        options = names["options"]
+        self.assertEqual((humanized_hash.Shape.ROUND, humanized_hash.FrameStyle.TICKS),
+                         (options.shape, options.frame))
+        self.assertEqual(0, options.background_alpha)
+        # Transparent over a white page is what the white column of the table shows.
+        self.assertEqual(300, names["report"].figures_x100)
+        self.assertEqual(257, humanized_hash.RenderOptions(background=0xE8EEF7).measure_contrast().figures_x100)
+
     def test_the_complete_program_of_the_readme(self) -> None:
-        # The third block is a whole program: it runs as main.py in a directory of its own.
-        program = python_blocks("README.md")[2]
+        # The section is a whole program: it runs as main.py in a directory of its own.
+        program = blocks_of(section(document("README.md"), "A complete program"))[0]
         environment = dict(os.environ)
         package_parent = os.path.dirname(os.path.dirname(os.path.abspath(humanized_hash.__file__)))
         environment["PYTHONPATH"] = package_parent
@@ -87,14 +113,14 @@ class DocumentationTest(unittest.TestCase):
         self.assertEqual(4, len(names["stored_check_value"]))
         self.assertLess(names["report"].figures_x100, 400)
 
-    def test_the_readme_links_to_files_of_this_release(self) -> None:
+    def test_the_readme_links_to_files_of_this_repository(self) -> None:
         # PyPI shows the README outside the repository: a relative link or image leads nowhere
-        # there, so everything is absolute and names the tag of the release.
+        # there, so everything is absolute and names the default branch, which always has the
+        # files the current README talks about.
         text = document("README.md")
         targets = re.findall(r"\]\(([^)\s]+)\)", text)
-        tag = "v" + humanized_hash.__version__
-        pages = f"https://github.com/censync/hh-python/blob/{tag}/"
-        images = f"https://raw.githubusercontent.com/censync/hh-python/{tag}/"
+        pages = "https://github.com/censync/hh-python/blob/main/"
+        images = "https://raw.githubusercontent.com/censync/hh-python/main/"
         found = {"pages": 0, "images": 0}
         for target in targets:
             self.assertRegex(target, r"^https://[a-z]", "a relative link: " + target)
@@ -105,7 +131,7 @@ class DocumentationTest(unittest.TestCase):
             path = target[len(images if kind == "images" else pages) :]
             self.assertTrue(os.path.isfile(os.path.join(ROOT, *path.split("/"))), target)
             found[kind] += 1
-        self.assertEqual({"pages": 4, "images": 5}, found)
+        self.assertEqual({"pages": 5, "images": 13}, found)
         for image in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", text):
             self.assertTrue(image.startswith(images), image)
         self.assertNotRegex(text, r"(?i)<img|<a\s|\]:\s")

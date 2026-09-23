@@ -8,7 +8,7 @@ people with a colour vision deficiency can tell them apart as well.
 
 | `0x1234567890abcdef00112233445566778899aabb` | `0x12345678f1e2d3c4b5a69788796a5b4c8899aabb` |
 |---|---|
-| ![picture of the first address](https://raw.githubusercontent.com/censync/hh-python/v1.0.0/testdata/golden/poison-a-universal-128.png) | ![picture of the second address](https://raw.githubusercontent.com/censync/hh-python/v1.0.0/testdata/golden/poison-b-universal-128.png) |
+| ![picture of the first address](https://raw.githubusercontent.com/censync/hh-python/main/testdata/golden/poison-a-universal-128.png) | ![picture of the second address](https://raw.githubusercontent.com/censync/hh-python/main/testdata/golden/poison-b-universal-128.png) |
 
 The two addresses agree in their first and last eight hex digits. Their pictures are unrelated.
 
@@ -42,9 +42,9 @@ input.
 
 | Picture | Address | Tag |
 |---|---|---|
-| ![picture of the first Sui address](https://raw.githubusercontent.com/censync/hh-python/v1.0.0/docs/images/sui-a.png) | <code>0xeab3150efcb34ff74930d8f3d491be109070a39e4d380de7737aff5c72a0b6b2</code> | `B6P-65H` |
-| ![picture of the second Sui address](https://raw.githubusercontent.com/censync/hh-python/v1.0.0/docs/images/sui-b.png) | <code>0xeab3150efcb34ff74930d8f<ins><b>8</b></ins>d491be109070a39e4d380de7737aff5c72a0b6b2</code> | `Q60-QKR` |
-| ![picture of the third Sui address](https://raw.githubusercontent.com/censync/hh-python/v1.0.0/docs/images/sui-c.png) | <code>0xeab3150efcb34ff74930d8f3d491be1090<ins><b>1</b></ins>0a39e4d380d<ins><b>c</b></ins>7737aff5c72a0b6b2</code> | `ZSJ-7BK` |
+| ![picture of the first Sui address](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/sui-a.png) | <code>0xeab3150efcb34ff74930d8f3d491be109070a39e4d380de7737aff5c72a0b6b2</code> | `B6P-65H` |
+| ![picture of the second Sui address](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/sui-b.png) | <code>0xeab3150efcb34ff74930d8f<ins><b>8</b></ins>d491be109070a39e4d380de7737aff5c72a0b6b2</code> | `Q60-QKR` |
+| ![picture of the third Sui address](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/sui-c.png) | <code>0xeab3150efcb34ff74930d8f3d491be1090<ins><b>1</b></ins>0a39e4d380d<ins><b>c</b></ins>7737aff5c72a0b6b2</code> | `ZSJ-7BK` |
 
 What a forger pays, by calculation. One current GPU tries about 1.4 billion addresses per second;
 a try against hh also has to compute the stretched base digest, which leaves about 680 000 tries
@@ -92,6 +92,32 @@ evidence rather than proof; the tag or the full address is the check that is cer
   Qt or Pillow image of them is one line in the host.
 - **Typed.** Type hints throughout and a `py.typed` marker.
 
+## Where it is used
+
+hh answers one question: is this the same address as the one I mean? Wherever a person has to
+answer it from a long string, a picture answers it faster and more reliably than the first and
+last characters do.
+
+- **Sending and confirming.** The picture of the recipient stands next to the address field and on
+  the confirmation screen. A swapped or mistyped address changes it completely.
+- **Address books and account lists.** Every saved payee and every account of the user carries its
+  picture, so a list is scanned instead of read; 32 to 48 px is enough for recognition.
+- **Two devices of one user.** An offline signer and the online device show the same picture for
+  the same address, so the two screens are compared at a glance instead of 64 characters.
+- **Support, screenshots and voice.** The six-character tag (`TKS-PVH`) travels through chat and
+  over the phone; the picture travels in a screenshot.
+- **Documents and messages from a server.** The encoders return PNG, BMP or JPEG bytes, so a
+  backend puts the picture into a receipt, an invoice or an email without a graphics library.
+- **Anything that is a hash, not only an address.** An SSH or PGP key fingerprint, a TLS
+  certificate pin, an API key, the checksum of a backup or of a firmware image.
+
+Three rules keep it honest: the picture complements the text check and never replaces it; inside
+one application keyed pictures are the default and universal pictures are what is shared with
+others; a picture that backs a decision is at least 64 dp and stands beside the picture it is
+compared with.
+[docs/INTEGRATION.md](https://github.com/censync/hh-python/blob/main/docs/INTEGRATION.md) has the
+rest.
+
 ## Quick start
 
 ```sh
@@ -128,10 +154,46 @@ arguments of the wrong type raise `TypeError`.
 A decision (confirming a payment, verifying a pasted address) should be backed by a picture of at
 least 64 device-independent pixels, better 96, next to the picture it is compared with. Smaller
 pictures are for recognition in lists. See
-[docs/INTEGRATION.md](https://github.com/censync/hh-python/blob/v1.0.0/docs/INTEGRATION.md) for
+[docs/INTEGRATION.md](https://github.com/censync/hh-python/blob/main/docs/INTEGRATION.md) for
 web backends, Tkinter, Pillow and Qt, caching and key handling, and
 [SECURITY.md](https://github.com/censync/hh-cpp/blob/v1.0.0/docs/SECURITY.md) of hh-cpp for what
 a picture proves and what it does not.
+
+## Looks
+
+The cells, the palette and the geometry are fixed; the host chooses the shape, the background and,
+for a keyed picture, the marker. Every picture below is the address of the quick start,
+rendered at 128 px.
+
+| Shape | Opaque white | Light blue `E8EEF7` | Transparent | Keyed, transparent |
+|---|---|---|---|---|
+| Square | ![square on white](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-square-white.png) | ![square on light blue](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-square-blue.png) | ![square on a transparent background](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-square-transparent.png) | ![keyed square with rounded corners](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-square-keyed.png) |
+| Round | ![round on white](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-round-white.png) | ![round on light blue](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-round-blue.png) | ![round on a transparent background](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-round-transparent.png) | ![keyed round with ticks](https://raw.githubusercontent.com/censync/hh-python/main/docs/images/look-round-keyed.png) |
+
+- **Background.** Any colour with any transparency. Outside rounded corners and outside the disc
+  the picture is transparent anyway, so a transparent background takes whatever is behind it: the
+  two transparent columns above are the same bytes on a light page and on a dark one.
+- **Contrast.** An opaque background is refused below 2:1 against a palette colour, and the
+  contrast report gives the WCAG ratio so that a host can warn below 3:1. White scores 300, the
+  light blue above 257, `121212` scores 300; mid greys and saturated surfaces are what to avoid.
+- **The frame marks the mode.** A universal picture has no frame by default, a keyed square gets
+  rounded corners, and the round shape stays unmarked unless a style is asked for (ticks above).
+  Pick one style and keep it everywhere in an application.
+- **The round shape** inscribes the same grid in a circle, so its cells are about a third smaller;
+  give it a third more pixels.
+
+```python
+options = RenderOptions(
+    shape=Shape.ROUND,
+    background=0xE8EEF7,
+    background_alpha=0,      # transparent; the colour then does not matter
+    frame=FrameStyle.TICKS,  # a marker: keyed pictures only
+)
+
+report = options.measure_contrast(0xFFFFFF)
+if report.figures_x100 < 300:
+    ...  # warn
+```
 
 ## A complete program
 
@@ -185,10 +247,10 @@ python -m build                                  # sdist and wheel (needs the bu
 The tests reproduce every record of the golden vectors, compare the rasteriser with a
 per-sample transcription of the specification and decode every encoder's output. The rules for
 patches are in
-[CONTRIBUTING.md](https://github.com/censync/hh-python/blob/v1.0.0/CONTRIBUTING.md), the releases
-in [CHANGELOG.md](https://github.com/censync/hh-python/blob/v1.0.0/CHANGELOG.md).
+[CONTRIBUTING.md](https://github.com/censync/hh-python/blob/main/CONTRIBUTING.md), the releases
+in [CHANGELOG.md](https://github.com/censync/hh-python/blob/main/CHANGELOG.md).
 
 ## License
 
-MIT, see [LICENSE](https://github.com/censync/hh-python/blob/v1.0.0/LICENSE).
+MIT, see [LICENSE](https://github.com/censync/hh-python/blob/main/LICENSE).
 Copyright (c) 2026 Dmitry Mandrika. [CenSync](https://censync.com)
