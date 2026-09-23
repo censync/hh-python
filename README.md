@@ -18,9 +18,20 @@ produces, byte for byte, the output of the C++ reference implementation
 [hh-cpp](https://github.com/censync/hh-cpp), which owns the
 [specification](https://github.com/censync/hh-cpp/blob/v1.0.0/docs/SPEC.md) and the golden vectors.
 `testdata/` is a byte-identical copy of those vectors; `testdata/SOURCE` names the hh-cpp release
-they came from. The same pictures come from [hh-kotlin](https://github.com/censync/hh-kotlin) (JVM
-and Android, Maven `io.github.censync:hh`), [hh-ts](https://github.com/censync/hh-ts) (TypeScript,
-npm `@censync/hh`) and [go-hh](https://github.com/censync/go-hh) (Go, `github.com/censync/go-hh`).
+they came from.
+
+## Implementations
+
+Every implementation produces the same pictures, tags and encoded files, byte for byte, and its
+tests check it against a copy of the golden vectors of hh-cpp.
+
+| Language | Repository | Package | Install |
+|---|---|---|---|
+| C++17, C ABI | [hh-cpp](https://github.com/censync/hh-cpp), the reference: specification and golden vectors | CMake `hh::hh`, pkg-config `hh` ([releases](https://github.com/censync/hh-cpp/releases)) | CMake `FetchContent` or `find_package(hh)` |
+| Kotlin and Java: JVM, Android | [hh-kotlin](https://github.com/censync/hh-kotlin) | Maven Central [`io.github.censync:hh`](https://central.sonatype.com/artifact/io.github.censync/hh) | `implementation("io.github.censync:hh:1.0.0")` |
+| TypeScript and JavaScript: browsers, Node.js, Deno, Bun | [hh-ts](https://github.com/censync/hh-ts) | npm [`@censync/hh`](https://www.npmjs.com/package/@censync/hh) | `npm install @censync/hh` |
+| Go | [go-hh](https://github.com/censync/go-hh) | [`github.com/censync/go-hh`](https://pkg.go.dev/github.com/censync/go-hh) | `go get github.com/censync/go-hh` |
+| Python | hh-python (this repository) | PyPI [`humanized-hash`](https://pypi.org/project/humanized-hash/) | `pip install humanized-hash` |
 
 ## A longer example: Sui
 
