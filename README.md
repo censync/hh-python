@@ -133,6 +133,31 @@ web backends, Tkinter, Pillow and Qt, caching and key handling, and
 [SECURITY.md](https://github.com/censync/hh-cpp/blob/v1.0.0/docs/SECURITY.md) of hh-cpp for what
 a picture proves and what it does not.
 
+## A complete program
+
+A command line program that writes the picture of an address to a PNG file and prints its tag.
+
+```sh
+mkdir hh-example && cd hh-example
+python3 -m venv .venv && . .venv/bin/activate
+pip install humanized-hash
+```
+
+`main.py`:
+
+```python
+from humanized_hash import BaseDigest, Fingerprint
+
+digest = BaseDigest.of_hex("0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed")
+fingerprint = Fingerprint.universal(digest)
+fingerprint.render(128).save("address.png")
+tag = fingerprint.tag
+print(f"{tag[:3]}-{tag[3:]}")
+```
+
+`python main.py` prints `TKS-PVH` and writes `address.png`, byte for byte the file
+`testdata/golden/evm-1-universal-128.png` that every implementation reproduces.
+
 ## Command line
 
 The package installs the command `humanized-hash`; `python -m humanized_hash` is the same tool.
