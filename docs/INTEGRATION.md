@@ -50,6 +50,80 @@ Which bytes to hash per chain (EVM, Sui, Solana, Tron, TON, Bitcoin) is listed i
 hh-cpp's INTEGRATION.md: `BaseDigest.of_hex` or `BaseDigest.of` for binary inputs,
 `BaseDigest.of_text` for formats that exist only as text.
 
+### Addresses that are text
+
+The table of hh-cpp's INTEGRATION.md asks for bytes wherever one address has several spellings.
+The functions below turn the usual spellings into those bytes. They check the form and the
+checksum, not whether the address exists or whose it is, and they are not part of the library,
+which takes any bytes and any text: copy them into the application.
+
+- TON: every spelling of one account (bounceable `EQ...`, non-bounceable `UQ...`, base64 or
+  base64url, raw `0:...`) gives the same 36 bytes and so the same picture. Hashed as text, the
+  four spellings would give four unrelated pictures.
+- Bitcoin: a bech32 address may be written in capitals, as QR codes do; both spellings give one
+  picture. Base58 addresses are case-sensitive and pass unchanged.
+- Free text (a name, an e-mail address, a label a person types) is hashed exactly as given, so
+  case, spaces and the Unicode form all count: an accented letter typed as one character (U+00E9)
+  and as a letter and a combining accent (U+0065 U+0301) gives two different pictures. Normalise
+  text a person types to NFC first; what to do about case and spaces is the application's choice.
+
+```python
+import base64
+import binascii
+import re
+import struct
+import unicodedata
+from typing import Optional
+
+
+def ton_address_bytes(text: str) -> Optional[bytes]:
+    """TON: the canonical 36 bytes (the workchain as 4 bytes big-endian, then the 32-byte
+    account hash) from a user-friendly address (48 characters of base64 or base64url, any flags)
+    or a raw one ("0:" or "-1:" and 64 hex digits). None for anything else or a wrong checksum."""
+    if ":" in text:
+        workchain, _, account = text.partition(":")
+        if workchain not in ("0", "-1") or not re.fullmatch(r"[0-9a-fA-F]{64}", account):
+            return None
+        return struct.pack(">i", int(workchain)) + bytes.fromhex(account)
+    if len(text) != 48:
+        return None
+    try:
+        raw = base64.b64decode(text.replace("-", "+").replace("_", "/"), validate=True)
+    except binascii.Error:
+        return None
+    crc = 0  # CRC-16/XMODEM over flags, workchain and hash
+    for byte in raw[:34]:
+        crc ^= byte << 8
+        for _ in range(8):
+            crc = ((crc << 1) ^ 0x1021 if crc & 0x8000 else crc << 1) & 0xFFFF
+    if crc != int.from_bytes(raw[34:], "big"):
+        return None
+    return struct.pack(">i", struct.unpack("b", raw[1:2])[0]) + raw[2:34]
+
+
+def bitcoin_address_text(text: str) -> Optional[str]:
+    """Bitcoin: bech32 and bech32m addresses (bc1, tb1, bcrt1) are case-insensitive and are
+    hashed in lower case; one in mixed case is invalid. Base58 addresses are hashed as written."""
+    lower = text.lower()
+    if not lower.startswith(("bc1", "tb1", "bcrt1")):
+        return text
+    return lower if text in (lower, text.upper()) else None
+
+
+def typed_text(text: str) -> str:
+    """Text a person typed: one spelling per string, whatever the keyboard produced."""
+    return unicodedata.normalize("NFC", text)
+```
+
+```python
+ton_digest = BaseDigest.of(ton_address_bytes(ton_address))
+bitcoin_digest = BaseDigest.of_text(bitcoin_address_text(bitcoin_address))
+label_digest = BaseDigest.of_text(typed_text(label))
+```
+
+The functions return `None` for an address they refuse; check it before passing it on, as
+`BaseDigest.of(None)` is a `TypeError`.
+
 ## 2. Web backends
 
 The encoders return `bytes`; every framework has a way to send bytes with a content type. With

@@ -106,6 +106,10 @@ class DocumentationTest(unittest.TestCase):
             "size": 64,
             "options": humanized_hash.RenderOptions(),
             "key_bytes": bytes(range(32)),
+            # One TON account, a bech32 address in capitals and a label with a combining accent.
+            "ton_address": "UQDgZ-tQ1WiBepfMqx-iXmz1TKAhPsTq-7YCC3OvU3MsN94H",
+            "bitcoin_address": "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
+            "label": "cafe\u0301",
         }
         ran = 0
         with humanized_hash.SecretKey(bytes(range(32))) as names["key"]:
@@ -115,7 +119,28 @@ class DocumentationTest(unittest.TestCase):
                     continue
                 exec(compile(block, "INTEGRATION.md", "exec"), names)
                 ran += 1
-        self.assertEqual(4, ran)
+        self.assertEqual(6, ran)
+        # Every spelling of one TON account is the same input, and so the same picture.
+        ton_address_bytes = names["ton_address_bytes"]
+        spellings = (
+            "EQDgZ-tQ1WiBepfMqx-iXmz1TKAhPsTq-7YCC3OvU3MsN4PC",
+            "UQDgZ-tQ1WiBepfMqx-iXmz1TKAhPsTq-7YCC3OvU3MsN94H",
+            "EQDgZ+tQ1WiBepfMqx+iXmz1TKAhPsTq+7YCC3OvU3MsN4PC",
+            "0:e067eb50d568817a97ccab1fa25e6cf54ca0213ec4eafbb6020b73af53732c37",
+        )
+        self.assertEqual({bytes(4) + bytes.fromhex(spellings[3][2:])},
+                         {ton_address_bytes(text) for text in spellings})
+        self.assertEqual(b"\xff" * 4, ton_address_bytes("Ef_gZ-tQ1WiBepfMqx-iXmz1TKAhPsTq-7YCC3OvU3MsN3yK")[:4])
+        for bad in (spellings[0][:-1] + "A", spellings[0][:-1], spellings[0][:-1] + "*",
+                    "1" + spellings[3][1:], spellings[3][:-1], ""):
+            self.assertIsNone(ton_address_bytes(bad), bad)
+        self.assertEqual("M3JDHG", humanized_hash.Fingerprint.universal(names["ton_digest"]).tag)
+        self.assertEqual(humanized_hash.BaseDigest.of_text("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"),
+                         names["bitcoin_digest"])
+        self.assertIsNone(names["bitcoin_address_text"]("bc1QW508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"))
+        self.assertEqual("1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+                         names["bitcoin_address_text"]("1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2"))
+        self.assertEqual(humanized_hash.BaseDigest.of_text("caf\u00e9"), names["label_digest"])
         self.assertEqual(names["public_png"](names["address"].lower(), 32)[:4], b"\x89PNG")
         self.assertEqual(4, len(names["stored_check_value"]))
         self.assertLess(names["report"].figures_x100, 400)
