@@ -493,40 +493,65 @@ class RenderTest(ApiTestCase):
 
     def test_errors_are_detected_in_the_order_of_the_specification(self) -> None:
         low_contrast = 0x7A96C5  # a palette colour
-        marker = RenderOptions(frame=FrameStyle.ROUNDED, background=low_contrast)
-        # 1. the size, 2. the frame, 3. the contrast, 4. room for the cells.
-        self.assert_error(ErrorCode.INVALID_SIZE, self.universal.render, 15, marker)
-        self.assert_error(ErrorCode.INVALID_SIZE, self.universal.render, 1025, marker)
-        self.assert_error(ErrorCode.INVALID_FRAME, self.universal.render, 16, marker)
-        self.assert_error(ErrorCode.LOW_CONTRAST, self.keyed.render, 16, marker)
+        misfit = RenderOptions(frame=FrameStyle.TICKS, background=low_contrast)  # round only
+        fitting = RenderOptions(frame=FrameStyle.ROUNDED, background=low_contrast)
         tight = RenderOptions(Shape.ROUND, FrameStyle.THICK, low_contrast)
-        self.assert_error(ErrorCode.INVALID_FRAME, self.universal.render, 17, tight)
-        self.assert_error(ErrorCode.LOW_CONTRAST, self.keyed.render, 17, tight)
-        tight = RenderOptions(Shape.ROUND, FrameStyle.THICK)
-        self.assert_error(ErrorCode.INVALID_SIZE, self.keyed.render, 17, tight)
-        self.assertEqual(18, self.keyed.render(18, tight).width)
+        tight_on_white = RenderOptions(Shape.ROUND, FrameStyle.THICK)
+        # 1. the size, 2. the frame, 3. the contrast, 4. room for the cells; in either mode.
+        for fp in (self.universal, self.keyed):
+            self.assert_error(ErrorCode.INVALID_SIZE, fp.render, 15, misfit)
+            self.assert_error(ErrorCode.INVALID_SIZE, fp.render, 1025, misfit)
+            self.assert_error(ErrorCode.INVALID_FRAME, fp.render, 16, misfit)
+            self.assert_error(ErrorCode.LOW_CONTRAST, fp.render, 16, fitting)
+            self.assert_error(ErrorCode.LOW_CONTRAST, fp.render, 17, tight)
+            self.assert_error(ErrorCode.INVALID_SIZE, fp.render, 17, tight_on_white)
+            self.assertEqual(18, fp.render(18, tight_on_white).width)
         # A translucent background is not measured: the page underneath is unknown.
         self.keyed.render(16, RenderOptions(background=low_contrast, background_alpha=254))
 
     def test_frames_follow_the_table_of_the_specification(self) -> None:
+        # The shape decides which styles fit; the mode plays no part.
         allowed = {
-            (Shape.SQUARE, Mode.UNIVERSAL): {"automatic", "none", "plain"},
-            (Shape.ROUND, Mode.UNIVERSAL): {"automatic", "none", "plain"},
-            (Shape.SQUARE, Mode.KEYED): {
+            Shape.SQUARE: {
                 "automatic", "none", "plain", "rounded", "chamfered", "double", "thick", "brackets",
             },
-            (Shape.ROUND, Mode.KEYED): {
-                "automatic", "none", "plain", "double", "thick", "ticks", "gaps",
-            },
+            Shape.ROUND: {"automatic", "none", "plain", "double", "thick", "ticks", "gaps"},
         }
-        for (shape, mode), names in allowed.items():
-            fp = self.keyed if mode is Mode.KEYED else self.universal
+        for shape, names in allowed.items():
+            for fp in (self.universal, self.keyed):
+                for style in FrameStyle:
+                    options = RenderOptions(shape, style)
+                    with self.subTest(shape=shape, mode=fp.mode, style=style):
+                        if style.value in names:
+                            self.assertEqual(40, fp.render(40, options).width)
+                        else:
+                            self.assert_error(ErrorCode.INVALID_FRAME, fp.render, 40, options)
+
+    def test_an_explicit_frame_draws_the_same_for_both_modes(self) -> None:
+        # The frame depends on the style and the shape alone: two fingerprints with the same
+        # bytes and different modes give identical pixels for every explicit style.
+        raw = bytes(self.universal)
+        universal = Fingerprint.from_bytes(raw, Mode.UNIVERSAL)
+        keyed = Fingerprint.from_bytes(raw, Mode.KEYED)
+        rendered = 0
+        for shape in Shape:
             for style in FrameStyle:
+                if style is FrameStyle.AUTOMATIC:
+                    continue
                 options = RenderOptions(shape, style)
-                if style.value in names:
-                    self.assertEqual(40, fp.render(40, options).width)
-                else:
-                    self.assert_error(ErrorCode.INVALID_FRAME, fp.render, 40, options)
+                outcomes = []
+                for fp in (universal, keyed):
+                    try:
+                        outcomes.append(fp.render(80, options).rgba)
+                    except HhError as error:
+                        outcomes.append(error.code)
+                self.assertEqual(outcomes[0], outcomes[1], (shape, style))
+                rendered += isinstance(outcomes[0], bytes)
+        self.assertEqual(7 + 6, rendered)
+        # Only automatic depends on the mode: it gives keyed squares rounded corners.
+        rounded = RenderOptions(frame=FrameStyle.ROUNDED)
+        self.assertEqual(keyed.render(80).rgba, universal.render(80, rounded).rgba)
+        self.assertNotEqual(keyed.render(80).rgba, universal.render(80).rgba)
 
     def test_automatic_is_rounded_for_keyed_squares_and_none_otherwise(self) -> None:
         for fp, shape, style in (

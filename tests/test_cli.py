@@ -12,6 +12,7 @@ import unittest
 from typing import List, Tuple
 
 import humanized_hash
+from humanized_hash import FrameStyle
 from humanized_hash._cli import main
 
 from .support import read_bytes
@@ -120,7 +121,7 @@ class SingleRenderTest(unittest.TestCase):
         for arguments, name in (
             (["0xzz"], "invalid_hex"),
             ([ADDRESS, "--size", "15"], "invalid_size"),
-            ([ADDRESS, "--frame", "rounded"], "invalid_frame"),
+            ([ADDRESS, "--frame", "ticks"], "invalid_frame"),
             ([ADDRESS, "--key", "00" * 32], "invalid_key"),
             ([ADDRESS, "--key", "xyz"], "invalid_key"),
             ([ADDRESS, "--background", "7a96c5ff"], "low_contrast"),
@@ -412,9 +413,9 @@ class GenerateTest(unittest.TestCase):
                 " 225 round gaps 000000ff 102 jpeg 86 4901e0",
                 "hex 0x6d9c2bea7654422f54ca064bedae"
                 " - 115 square automatic e6dae765 102 bmp 93 821bf4",
-                "hex 0x - 129 square none ffffffff 211 bmp 97 988255",
+                "hex 0x - 129 square brackets ffffffff 211 bmp 97 988255",
                 "hex 0xa483cab641e5e98c405045d21ab6c61fdf727c73e9ddba383fb02988eb3285c5a7bdad03749c"
-                " - 41 square none 00000000 48 bmp 86 6cc14a",
+                " - 41 square plain 00000000 48 bmp 86 6cc14a",
                 "",
             ],
             out.split("\n"),
@@ -425,11 +426,16 @@ class GenerateTest(unittest.TestCase):
         lines = out.split("\n")[1:-1]
         self.assertEqual(300, len(lines))
         kinds = set()
+        universal_frames = set()
         for line in lines:
             fields = line.split(" ")
             self.assertEqual(11, len(fields), line)
             kinds.add(fields[0])
+            if fields[2] == "-":
+                universal_frames.add(fields[5])
         self.assertEqual({"hex", "text"}, kinds)
+        # The frame of a case depends on the shape alone: cases without a key get every style.
+        self.assertEqual({style.value for style in FrameStyle}, universal_frames)
         self.assertNotEqual(out, run("--generate", "300", "12345")[1])
 
     def test_a_generated_batch_runs(self) -> None:

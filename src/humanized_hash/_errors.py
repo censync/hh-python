@@ -29,7 +29,8 @@ class ErrorCode(enum.IntEnum):
     INVALID_SIZE = 7
     """The image size is outside 16..1024 or leaves no room for the cells."""
     INVALID_FRAME = 8
-    """The frame style is not allowed for the shape or the mode."""
+    """The frame style does not fit the shape: ``ROUNDED``, ``CHAMFERED`` and ``BRACKETS`` need
+    the square, ``TICKS`` and ``GAPS`` the round shape. The mode never restricts the frame."""
     LOW_CONTRAST = 9
     """The opaque background is too close to a palette colour."""
     INVALID_QUALITY = 10

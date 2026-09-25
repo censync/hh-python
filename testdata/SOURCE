@@ -1,8 +1,8 @@
 # The files in this directory are a byte-identical copy of testdata/ in hh-cpp, the
 # reference implementation. Do not edit them; run tools/update-vectors.sh instead.
 repository: https://github.com/censync/hh-cpp
-tag: v1.0.0
-commit: ae81bcc39caa68074127c402248fd198a3520a73
+tag: v1.1.0
+commit: 9c9ab9dd7722ba10fdab362a1f2267ba0651bb9e
 c92ab92e281b086747bbcdbfb02c095fb03f4d66343644e6fda375d70b09484b  golden/evm-1-keyed-128-dark.png
 ecc8dc16ca7d46ce3f7815cbc53e07c747f6edb76ec82a95c1eaa7081f273cf9  golden/evm-1-keyed-128.png
 3e6a6d464ec2a45c37f4a1eef1fdac5c217e50afc4e156897cc7db5c053138e2  golden/evm-1-keyed-48.png
@@ -23,4 +23,4 @@ ca6d70e6be57e5529aeb6a3f93771aa715eaaabb9eb372f204e5a65d2236036e  golden/evm-2-k
 33c8fd0f116d7ffbd6fa54a9baf7e64c3b59502ec2a8b9e30802cee3d1586fb4  golden/poison-a-universal-128.png
 663bb6594e8e9a094bcc08471cb712b24c6c35236e5a1c2ab28e166d4d69cb48  golden/poison-b-universal-128.png
 e1c6e756cb820a935a6784dd143c13c9d0a619c0caa6a8ec1c7994a5fb2eb802  golden/sampler-universal-128.png
-402f11adf82b4f4cadbef127f70a45227652f226fb759f64f882f8eb5ffdfc60  vectors.tsv
+bc950463a79ec681d44e38b2ff99771e7a313f1c5a77599992c68ab1dc4116ab  vectors.tsv

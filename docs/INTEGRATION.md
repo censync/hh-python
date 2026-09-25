@@ -2,7 +2,7 @@
 
 How to put hh-python into an application. What to hash, which mode to show where and how large a
 picture must be are the same for every implementation and are described once, in
-[INTEGRATION.md of hh-cpp](https://github.com/censync/hh-cpp/blob/v1.0.0/docs/INTEGRATION.md)
+[INTEGRATION.md of hh-cpp](https://github.com/censync/hh-cpp/blob/v1.1.0/docs/INTEGRATION.md)
 (sections 1 to 4). This document adds the Python side.
 
 ## 1. The three steps and what to cache
@@ -164,7 +164,7 @@ from humanized_hash import FrameStyle, RenderOptions, Shape
 
 options = RenderOptions(
     shape=Shape.ROUND,
-    frame=FrameStyle.DOUBLE,           # a keyed-mode marker: refused for a universal fingerprint
+    frame=FrameStyle.DOUBLE,           # any style of the shape, in either mode
     background=0x121212,
     background_alpha=255,
     frame_alpha=255,
@@ -173,6 +173,14 @@ report = options.measure_contrast(page=0x121212)
 if report.figures_x100 < 300:
     ...                                # warn the user: figures may be hard to see
 ```
+
+`frame` takes every style in both modes. `NONE`, `PLAIN`, `DOUBLE` and `THICK` fit either shape,
+`ROUNDED`, `CHAMFERED` and `BRACKETS` the square, `TICKS` and `GAPS` the round shape; a style that
+does not fit the shape is `INVALID_FRAME`. The default, `AUTOMATIC`, gives universal pictures no
+frame and keyed square pictures rounded corners. A host that marks its keyed pictures with a
+frame uses one style everywhere in the application and on every device of a user: a marker is
+only useful if it is familiar. The library does not enforce the marker, so the caption, not the
+frame, is what tells the user the mode.
 
 Rendering refuses an opaque background with less than 2:1 against any palette colour
 (`LOW_CONTRAST`). For a translucent background pass the colour of the surface underneath as
@@ -194,7 +202,7 @@ value is the code of the C ABI and whose `spec_name` is the spelling of the spec
 | `BaseDigest.of`, `of_hex`, `of_text` | `EMPTY_INPUT`, `INPUT_TOO_LARGE`, `INVALID_HEX`, `INVALID_ARGUMENT` (a `str` with a lone surrogate) |
 | `BaseDigest.from_bytes`, `Fingerprint.from_bytes` | `INVALID_DIGEST`, `INVALID_FINGERPRINT` |
 | `SecretKey(...)`, use of a closed key | `INVALID_KEY` |
-| `Fingerprint.render` | `INVALID_SIZE`, `INVALID_FRAME`, `LOW_CONTRAST`, in this order of checks |
+| `Fingerprint.render` | `INVALID_SIZE`, `INVALID_FRAME` (a style that does not fit the shape), `LOW_CONTRAST`, in this order of checks |
 | `Image(...)`, `Image.encode_jpeg` | `INVALID_IMAGE`, `INVALID_QUALITY` |
 | `RenderOptions(...)`, `measure_contrast`, `encode_bmp`, `encode_jpeg`, `save` | `INVALID_ARGUMENT` for a colour outside `0..0xFFFFFF`, an alpha outside `0..255`, an unknown file extension or a file name that cannot name a file (an embedded NUL; outside Windows also a lone surrogate) |
 

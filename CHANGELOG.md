@@ -6,6 +6,26 @@ All notable changes to this project are documented here. The format follows
 its golden vectors were copied from. The algorithm itself is frozen and has no version: no
 release changes a fingerprint, a pixel or an encoded byte.
 
+## [1.1.0] - 2026-09-25
+
+Golden vectors: hh-cpp v1.1.0.
+
+### Changed
+
+- The mode no longer restricts the look: universal fingerprints take every frame style that fits
+  the shape (`ROUNDED`, `CHAMFERED`, `DOUBLE`, `THICK`, `BRACKETS`, `TICKS`, `GAPS`), which 1.0.0
+  refused with `INVALID_FRAME`. A style that does not fit the shape is still `INVALID_FRAME`, and
+  its message names the shape alone. `AUTOMATIC` is unchanged: universal pictures stay frameless
+  and keyed square pictures keep their rounded corners, so every picture 1.0.0 rendered is the
+  same to the byte.
+- The golden vectors are those of hh-cpp v1.1.0: they gain renders and size sweeps of universal
+  fingerprints with every style, and the error records now test the shape alone.
+- `humanized-hash --generate` picks the frame of a case by the shape alone, so cases without a
+  key get every style too. The cases of a seed differ from those of 1.0.0 in the frame of such
+  cases only, and they are the cases that the tool of hh-kotlin 1.1.0 prints for the seed.
+- The docstrings of `FrameStyle`, `RenderOptions.frame` and `ErrorCode.INVALID_FRAME`, the README
+  and `docs/INTEGRATION.md` describe the rule; links to the documents of hh-cpp point at v1.1.0.
+
 ## [1.0.0] - 2026-09-21
 
 The first release. Golden vectors: hh-cpp v1.0.0.
@@ -43,4 +63,5 @@ The first release. Golden vectors: hh-cpp v1.0.0.
 - Packaging with setuptools: `humanized-hash` on PyPI, CPython 3.9 to 3.14 and PyPy 3.10; the
   source distribution carries the tests and the vectors, the wheel the package only.
 
+[1.1.0]: https://github.com/censync/hh-python/releases/tag/v1.1.0
 [1.0.0]: https://github.com/censync/hh-python/releases/tag/v1.0.0

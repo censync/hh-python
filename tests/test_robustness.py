@@ -125,7 +125,7 @@ class RobustnessTest(unittest.TestCase):
                 for style in FrameStyle:
                     if style is FrameStyle.AUTOMATIC:
                         continue
-                    if not _raster.frame_allowed(style, Mode.KEYED, shape):
+                    if not _raster.frame_allowed(style, shape):
                         continue
                     g = _raster.Geometry(size, shape, style)
                     if g.cell < 1:

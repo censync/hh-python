@@ -34,9 +34,11 @@ class Shape(enum.Enum):
 class FrameStyle(enum.Enum):
     """The frame of a picture. The values are the names of the specification.
 
-    ``NONE`` and ``PLAIN`` are open to both modes. Every other style is a keyed-mode marker: it
-    tells the user that the picture is the private one, and rendering refuses it for a universal
-    fingerprint.
+    Every style is available in both modes. ``NONE``, ``PLAIN``, ``DOUBLE`` and ``THICK`` fit
+    either shape; ``ROUNDED``, ``CHAMFERED`` and ``BRACKETS`` need the square shape, ``TICKS``
+    and ``GAPS`` the round one, and rendering refuses a style that does not fit the shape with
+    ``INVALID_FRAME``. A host that marks its keyed pictures with a frame picks the style;
+    ``AUTOMATIC`` gives keyed square pictures rounded corners.
     """
 
     AUTOMATIC = "automatic"
@@ -152,7 +154,7 @@ class RenderOptions:
     shape: Shape = Shape.SQUARE
     """Square or round."""
     frame: FrameStyle = FrameStyle.AUTOMATIC
-    """The frame style; see :class:`FrameStyle`."""
+    """The frame style: any style that fits the shape, in either mode; see :class:`FrameStyle`."""
     background: int = 0xFFFFFF
     """The background colour as ``0xRRGGBB``."""
     background_alpha: int = 255

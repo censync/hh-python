@@ -324,10 +324,8 @@ def _generate(count: int, seed: int) -> int:
         else:
             background = backgrounds[random.below(len(backgrounds))]
         round_shape = random.boolean()
-        # Mostly a frame that fits the mode and the shape, so that most cases render.
-        if key == "-":
-            fitting = ["automatic", "none", "plain"]
-        elif round_shape:
+        # Mostly a frame that fits the shape, so that most cases render.
+        if round_shape:
             fitting = ["automatic", "none", "plain", "double", "thick", "ticks", "gaps"]
         else:
             fitting = [

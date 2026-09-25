@@ -1,5 +1,6 @@
-"""The Python examples of the documentation run as they are written, and the README, which is
-also the long description on PyPI, points at files that exist."""
+"""The Python examples of the documentation run as they are written, the README, which is also
+the long description on PyPI, points at files that exist, and the documents of hh-cpp are
+linked at the release the vectors came from."""
 
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def document(*path: str) -> str:
-    """The text of a Markdown file of the repository."""
+    """The text of a Markdown or TOML file of the repository."""
     name = os.path.join(ROOT, *path)
     if not os.path.isfile(name):
         raise unittest.SkipTest("the installed package has no documentation beside it")
@@ -69,6 +70,12 @@ class DocumentationTest(unittest.TestCase):
         # Transparent over a white page is what the white column of the table shows.
         self.assertEqual(300, names["report"].figures_x100)
         self.assertEqual(257, humanized_hash.RenderOptions(background=0xE8EEF7).measure_contrast().figures_x100)
+        # Any style of the shape, in either mode: the same pixels for the same bytes.
+        pictures = [
+            humanized_hash.Fingerprint.from_bytes(bytes(range(32)), mode).render(64, options)
+            for mode in humanized_hash.Mode
+        ]
+        self.assertEqual(pictures[0], pictures[1])
 
     def test_the_complete_program_of_the_readme(self) -> None:
         # The section is a whole program: it runs as main.py in a directory of its own.
@@ -112,6 +119,12 @@ class DocumentationTest(unittest.TestCase):
         self.assertEqual(names["public_png"](names["address"].lower(), 32)[:4], b"\x89PNG")
         self.assertEqual(4, len(names["stored_check_value"]))
         self.assertLess(names["report"].figures_x100, 400)
+        # The look of section 5 renders in either mode.
+        options = names["options"]
+        self.assertIs(humanized_hash.FrameStyle.DOUBLE, options.frame)
+        universal = humanized_hash.Fingerprint.universal(names["digest"])
+        for fingerprint in (universal, names["fingerprint"]):
+            self.assertEqual(64, fingerprint.render(64, options).width)
 
     def test_the_readme_links_to_files_of_this_repository(self) -> None:
         # PyPI shows the README outside the repository: a relative link or image leads nowhere
@@ -135,6 +148,18 @@ class DocumentationTest(unittest.TestCase):
         for image in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", text):
             self.assertTrue(image.startswith(images), image)
         self.assertNotRegex(text, r"(?i)<img|<a\s|\]:\s")
+
+    def test_documents_of_hh_cpp_are_linked_at_the_release_of_the_vectors(self) -> None:
+        # The specification and the guides of hh-cpp are linked at the tag that testdata/SOURCE
+        # names: they describe the rules that the copied vectors test.
+        source = read_bytes("SOURCE").decode("utf-8")
+        tag = re.search(r"^tag: (v\d+\.\d+\.\d+)$", source, re.MULTILINE)
+        self.assertIsNotNone(tag)
+        for path in (("README.md",), ("docs", "INTEGRATION.md"), ("pyproject.toml",)):
+            text = document(*path)
+            pinned = re.findall(r"https://github\.com/censync/hh-cpp/(?:blob|tree)/([^/]+)/", text)
+            self.assertTrue(pinned, path)
+            self.assertEqual({tag.group(1) if tag else ""}, set(pinned), path)
 
 
 if __name__ == "__main__":

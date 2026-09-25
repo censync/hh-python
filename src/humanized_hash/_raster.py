@@ -64,17 +64,15 @@ def resolve_frame(frame: FrameStyle, mode: Mode, shape: Shape) -> FrameStyle:
     return FrameStyle.NONE
 
 
-def frame_allowed(resolved: FrameStyle, mode: Mode, shape: Shape) -> bool:
-    """The table of section 6: which style goes with which shape and mode."""
-    if resolved in (FrameStyle.NONE, FrameStyle.PLAIN):
+def frame_allowed(resolved: FrameStyle, shape: Shape) -> bool:
+    """The table of section 6: which style goes with which shape. The mode plays no part."""
+    if resolved in (FrameStyle.NONE, FrameStyle.PLAIN, FrameStyle.DOUBLE, FrameStyle.THICK):
         return True
-    if mode is not Mode.KEYED:
-        return False
     if resolved in (FrameStyle.ROUNDED, FrameStyle.CHAMFERED, FrameStyle.BRACKETS):
         return shape is Shape.SQUARE
     if resolved in (FrameStyle.TICKS, FrameStyle.GAPS):
         return shape is Shape.ROUND
-    return resolved in (FrameStyle.DOUBLE, FrameStyle.THICK)
+    return False
 
 
 class Geometry:
@@ -363,11 +361,10 @@ def render(fp: bytes, mode: Mode, size: int, options: RenderOptions) -> bytes:
     if size < MIN_SIZE or size > MAX_SIZE:
         raise HhError(ErrorCode.INVALID_SIZE, f"the size must be {MIN_SIZE}..{MAX_SIZE}")
     style = resolve_frame(options.frame, mode, options.shape)
-    if not frame_allowed(style, mode, options.shape):
+    if not frame_allowed(style, options.shape):
         raise HhError(
             ErrorCode.INVALID_FRAME,
-            f"the frame {style.value} is not allowed for a {options.shape.value}"
-            f" {mode.name.lower()} picture",
+            f"the frame {style.value} is not allowed for a {options.shape.value} picture",
         )
     if options.background_alpha == 255 and _contrast.figures_x100(options.background) < 200:
         raise HhError(ErrorCode.LOW_CONTRAST, "the background is too close to a palette colour")

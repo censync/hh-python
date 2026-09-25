@@ -15,23 +15,24 @@ from humanized_hash import Fingerprint, FrameStyle, Mode, RenderOptions, Shape
 
 from .reference import Reference
 
-# Every pair of a shape and a frame that renders, with the mode it needs.
+# Every pair of a shape and a frame that renders, each with a mode: True is keyed. Only automatic
+# depends on the mode, so it comes in both; the other styles are spread over the two modes.
 LOOKS: List[Tuple[str, str, bool]] = [
     ("square", "automatic", False),
     ("square", "automatic", True),
     ("square", "none", True),
     ("square", "plain", False),
-    ("square", "rounded", True),
+    ("square", "rounded", False),
     ("square", "chamfered", True),
-    ("square", "double", True),
+    ("square", "double", False),
     ("square", "thick", True),
-    ("square", "brackets", True),
+    ("square", "brackets", False),
     ("round", "automatic", False),
     ("round", "none", True),
     ("round", "plain", False),
     ("round", "double", True),
-    ("round", "thick", True),
-    ("round", "ticks", True),
+    ("round", "thick", False),
+    ("round", "ticks", False),
     ("round", "gaps", True),
 ]
 
